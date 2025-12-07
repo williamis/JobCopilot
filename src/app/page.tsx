@@ -5,6 +5,7 @@ import { useState } from "react";
 type ApiResponse = {
   analysis: string;
   coverLetter: string;
+  matchScore: number; // uusi
 };
 
 export default function HomePage() {
@@ -15,42 +16,69 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
-    setResult(null);
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
+  setResult(null);
 
+  try {
+    const res = await fetch("/api/generate-application", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ cvText, jobAdText }),
+    });
+
+    let data: any = null;
     try {
-      const res = await fetch("/api/generate-application", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cvText, jobAdText }),
-      });
-
-      if (!res.ok) {
-        throw new Error("API returned non-OK status");
-      }
-
-      const data = (await res.json()) as ApiResponse;
-      setResult(data);
-    } catch (err) {
-      console.error(err);
-      setError("Jotain meni pieleen. Yritä uudestaan.");
-    } finally {
-      setLoading(false);
+      data = await res.json();
+    } catch {
+      // ei JSON-bodya
     }
-  };
+
+    if (!res.ok) {
+      console.error("API error status:", res.status, data);
+      setError(
+        data?.error ||
+          `Palvelin palautti virheen (status ${res.status}).`
+      );
+      return;
+    }
+
+    setResult(data as ApiResponse);
+  } catch (err) {
+    console.error(err);
+    setError("Verkkovirhe tai odottamaton virhe. Yritä uudestaan.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl bg-slate-900 rounded-2xl shadow-lg border border-slate-800 p-6 md:p-10 space-y-8">
-        <header>
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">JobCopilot</h1>
-          <p className="text-slate-400">
-            Syötä CV:si ja työpaikkailmoitus. Sovellus (myöhemmin Groq-LLM:n
-            avulla) analysoi matchin ja generoi hakemuskirjeen.
-          </p>
-        </header>
+        <header className="flex items-baseline justify-between gap-4">
+  <div>
+    <h1 className="text-3xl md:text-4xl font-bold mb-2">
+  JobCopilot <span className="text-sky-400 text-lg">FI</span>
+</h1>
+    <p className="text-slate-400">
+      Syötä CV:si ja työpaikkailmoitus. Sovellus analysoi matchin ja generoi
+      luonnoksen hakemuskirjeestä Groq-LLM:n avulla.
+    </p>
+  </div>
+
+  {/* Language switcher */}
+  <div className="text-xs text-slate-500 text-right">
+    <div className="font-semibold text-slate-300">Kieli</div>
+    <div>Nyt: FI</div>
+    <div>
+      Englanninkielinen versio:{" "}
+      <a href="/en" className="text-sky-400 hover:underline">
+      / (EN)
+      </a>
+    </div>
+  </div>
+</header>
 
         <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
           <div className="flex flex-col space-y-2">
@@ -77,9 +105,8 @@ export default function HomePage() {
 
           <div className="md:col-span-2 flex items-center justify-between">
             <p className="text-xs text-slate-500">
-              Tämä on vielä mock-versio – seuraavassa vaiheessa kytketään
-              Groq-malli taustalle.
-            </p>
+  JobCopilot analysoi CV:si ja työpaikkailmoituksen Groq-LLM:n avulla ja generoi luonnoksen hakemuskirjeestä.
+</p>
             <button
               type="submit"
               disabled={loading}
@@ -105,6 +132,23 @@ export default function HomePage() {
               analyysin ja hakemuskirjeen.
             </p>
           )}
+          {result && (
+  <div className="space-y-2 mb-2">
+    <p className="text-sm text-slate-300">
+      Match-pisteet:{" "}
+      <span className="font-semibold">
+        {result.matchScore} / 100
+      </span>
+    </p>
+    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
+      <div
+        className="h-full bg-sky-500"
+        style={{ width: `${Math.max(0, Math.min(100, result.matchScore))}%` }}
+      />
+    </div>
+  </div>
+)}
+
 
           {result && (
             <div className="grid md:grid-cols-2 gap-4">

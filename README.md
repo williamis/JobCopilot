@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JobCopilot
 
-## Getting Started
+JobCopilot is a bilingual AI-powered web application that helps job seekers generate tailored cover letters and understand how well their skills match a given job posting.  
+The system analyses a candidate’s resume, evaluates alignment with job requirements, computes a match score (0–100), and drafts a personalized cover letter.
 
-First, run the development server:
+The project demonstrates:
+- practical LLM integration using Groq LLaMA models  
+- full-stack development with Next.js & TypeScript  
+- modern, clean UI design with Tailwind CSS  
+- bilingual support (Finnish & English)
+![alt text](image.png)
+![alt text](image-5.png)
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Languages
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `/` → Finnish version  
+- `/en` → English version  
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Both versions have their own API routes and language-aware prompts.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## Core Features
 
-To learn more about Next.js, take a look at the following resources:
+- Resume + job description comparison  
+- Match score calculation  
+- LLM-generated suitability analysis  
+- Bilingual cover letter drafting  
+- Responsive, polished UI  
+- Clean, typed backend logic  
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Examples (real inputs & outputs)
 
-## Deploy on Vercel
+Below are real example cases used to demonstrate how JobCopilot responds to different candidate–job combinations.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🇬🇧 Example 1 — Good Match (English)
+![alt text](image-2.png)
+---
+
+## 🇬🇧 Example 2 — Poor Match (English)
+![alt text](image-4.png)
+---
+
+## 🇫🇮 Esimerkki 3 — Hyvä match (suomi)
+![alt text](image-1.png)
+---
+
+## 🇫🇮 Esimerkki 4 — Huono match (suomi)
+![alt text](image-3.png)
+---
+
+## Summary
+
+JobCopilot showcases the ability to design and build:
+
+- a real, user-facing AI product  
+- structured prompting and JSON-controlled LLM responses  
+- a modern Next.js full-stack application  
+- multilingual UX  
+- clean frontend and backend architecture  
+
+It is intended as a practical, portfolio-ready demonstration of skills relevant to junior software development roles.
