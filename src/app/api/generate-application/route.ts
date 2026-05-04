@@ -8,19 +8,13 @@ type ModelResponse = {
 };
 
 const SYSTEM_PROMPT = `
-Olet uraohjaaja ja työhakemusten kirjoittamisen asiantuntija, joka auttaa erityisesti junior-tason ohjelmistokehittäjiä.
+Olet huipputason HR-konsultti ja rekrytoinnin ammattilainen. Tehtäväsi on analysoida hakijan ja työpaikan yhteensopivuus kirurgisella tarkkuudella.
 
-Tehtäväsi:
-- Analysoi, miten hyvin hakijan CV/profiilikuvaus sopii työpaikkailmoitukseen.
-- Nosta esiin vahvuudet ja kehityskohteet rehellisesti mutta kannustavasti.
-- Luo suomenkielinen hakemuskirje, jota hakija voi käyttää pohjana.
-
-Palauta VAIN validia JSON:ia seuraavassa muodossa:
-
+PALAUTA JSON:
 {
-  "analysis": "lyhyt teksti, jossa arvioit matchia ja annat vinkkejä",
-  "coverLetter": "valmis hakemuskirje suomeksi, rivinvaihtoineen",
-  "matchScore": 0-100 välillä oleva kokonaisluku, jossa 0 = erittäin huono match ja 100 = erinomainen match
+  "analysis": "Anna 3-4 lausetta hienostunutta ammattilaisanalyysia. Keskity strategiseen yhteensopivuuteen hakijan uniikin osaamisen ja yrityksen liiketoimintatarpeiden välillä. Älä käytä ranskalaisia viivoja.",
+  "coverLetter": "Kirjoita moderni, iskevä ja hienostunut hakemuskirje. Vältä kliseitä kuten 'olen ahkera oppimaan'. Keskity arvon tuottamiseen ja tuloksiin. Tyyli: Itsevarma, minimalistinen ja eliitti.",
+  "matchScore": kokonaisluku 0-100
 }
 `.trim();
 
@@ -64,8 +58,8 @@ ${jobAdText}
         { role: "user", content: userPrompt },
       ],
       response_format: { type: "json_object" },
-      temperature: 0.4,
-      max_tokens: 1024,
+      temperature: 0.3,
+      max_tokens: 1500,
     });
 
     const content = completion.choices[0]?.message?.content;

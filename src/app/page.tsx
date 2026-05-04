@@ -1,174 +1,160 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 
-type ApiResponse = {
-  analysis: string;
-  coverLetter: string;
-  matchScore: number; // uusi
-};
-
-export default function HomePage() {
+export default function Page() {
   const [cvText, setCvText] = useState("");
   const [jobAdText, setJobAdText] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ApiResponse | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (result?.coverLetter) {
+      navigator.clipboard.writeText(result.coverLetter);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
-  setError(null);
-  setResult(null);
-
-  try {
-    const res = await fetch("/api/generate-application", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ cvText, jobAdText }),
-    });
-
-    let data: any = null;
+    e.preventDefault();
+    setLoading(true);
     try {
-      data = await res.json();
-    } catch {
-      // ei JSON-bodya
+      const res = await fetch("/api/generate-application", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cvText, jobAdText }),
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-
-    if (!res.ok) {
-      console.error("API error status:", res.status, data);
-      setError(
-        data?.error ||
-          `Palvelin palautti virheen (status ${res.status}).`
-      );
-      return;
-    }
-
-    setResult(data as ApiResponse);
-  } catch (err) {
-    console.error(err);
-    setError("Verkkovirhe tai odottamaton virhe. Yritä uudestaan.");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
-    <main className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl bg-slate-900 rounded-2xl shadow-lg border border-slate-800 p-6 md:p-10 space-y-8">
-        <header className="flex items-baseline justify-between gap-4">
-  <div>
-    <h1 className="text-3xl md:text-4xl font-bold mb-2">
-  JobCopilot <span className="text-sky-400 text-lg">FI</span>
-</h1>
-    <p className="text-slate-400">
-      Syötä CV:si ja työpaikkailmoitus. Sovellus analysoi matchin ja generoi
-      luonnoksen hakemuskirjeestä Groq-LLM:n avulla.
-    </p>
-  </div>
-
-  {/* Language switcher */}
-  <div className="text-xs text-slate-500 text-right">
-    <div className="font-semibold text-slate-300">Kieli</div>
-    <div>Nyt: FI</div>
-    <div>
-      Englanninkielinen versio:{" "}
-      <a href="/en" className="text-sky-400 hover:underline">
-      / (EN)
-      </a>
+    <main className="min-h-screen bg-brand-bg text-zinc-200 font-sans tracking-tight">
+      {/* Navigaatio */}
+      <nav className="border-b border-brand-border/50 bg-brand-bg/80 backdrop-blur-md sticky top-0 z-50">
+  <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+    <div className="flex items-center gap-2">
+      <div className="w-6 h-6 bg-white rounded-sm flex items-center justify-center">
+        <span className="text-black font-black text-xs italic">JC</span>
+      </div>
+      <span className="font-medium text-white tracking-widest uppercase text-sm">JobCopilot</span>
+    </div>
+    
+    <div className="flex items-center gap-6">
+      <div className="flex items-center gap-3 text-[10px] font-bold tracking-[0.2em] uppercase">
+        <span className="text-white border-b border-white pb-0.5">FI</span>
+        <Link href="/en" className="text-zinc-500 hover:text-zinc-300 transition-colors">
+          EN
+        </Link>
+      </div>
+      <div className="hidden sm:block text-[10px] font-bold tracking-[0.2em] text-zinc-500 uppercase border border-zinc-800 px-3 py-1 rounded">
+        Professional Suite
+      </div>
     </div>
   </div>
-</header>
+</nav>
 
-        <form onSubmit={handleSubmit} className="grid md:grid-cols-2 gap-6">
-          <div className="flex flex-col space-y-2">
-            <label className="font-semibold">CV / profiilikuvaus</label>
-            <textarea
-              className="min-h-[220px] rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-              placeholder="Liitä tähän CV:si tekstinä tai lyhyt kuvaus kokemuksestasi..."
-              value={cvText}
-              onChange={(e) => setCvText(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="flex flex-col space-y-2">
-            <label className="font-semibold">Työpaikkailmoitus</label>
-            <textarea
-              className="min-h-[220px] rounded-xl bg-slate-950 border border-slate-700 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-              placeholder="Liitä tähän työpaikkailmoituksen teksti..."
-              value={jobAdText}
-              onChange={(e) => setJobAdText(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="md:col-span-2 flex items-center justify-between">
-            <p className="text-xs text-slate-500">
-  JobCopilot analysoi CV:si ja työpaikkailmoituksen Groq-LLM:n avulla ja generoi luonnoksen hakemuskirjeestä.
-</p>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 disabled:opacity-60 disabled:cursor-not-allowed text-sm font-semibold shadow-sm"
-            >
-              {loading ? "Analysoidaan..." : "Generoi hakemus"}
-            </button>
-          </div>
-        </form>
-
-        <section className="space-y-4">
-          <h2 className="text-xl font-semibold">Tulos</h2>
-
-          {error && (
-            <div className="text-sm text-red-400 bg-red-950/40 border border-red-700 px-3 py-2 rounded-lg">
-              {error}
-            </div>
-          )}
-
-          {!error && !result && !loading && (
-            <p className="text-sm text-slate-500">
-              Täytä kentät ja paina &quot;Generoi hakemus&quot; nähdäksesi
-              analyysin ja hakemuskirjeen.
-            </p>
-          )}
-          {result && (
-  <div className="space-y-2 mb-2">
-    <p className="text-sm text-slate-300">
-      Match-pisteet:{" "}
-      <span className="font-semibold">
-        {result.matchScore} / 100
-      </span>
-    </p>
-    <div className="w-full h-2 rounded-full bg-slate-800 overflow-hidden">
-      <div
-        className="h-full bg-sky-500"
-        style={{ width: `${Math.max(0, Math.min(100, result.matchScore))}%` }}
-      />
-    </div>
-  </div>
-)}
-
-
-          {result && (
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                <h3 className="font-semibold mb-2 text-sky-400">Analyysi</h3>
-                <p className="text-sm whitespace-pre-line">
-                  {result.analysis}
-                </p>
-              </div>
-              <div className="bg-slate-950 border border-slate-800 rounded-xl p-4">
-                <h3 className="font-semibold mb-2 text-sky-400">
-                  Hakemuskirje (luonnos)
-                </h3>
-                <p className="text-sm whitespace-pre-line">
-                  {result.coverLetter}
-                </p>
-              </div>
-            </div>
-          )}
+      <div className="max-w-6xl mx-auto px-6 py-16 space-y-24">
+        
+        {/* Otsikko-osio */}
+        <section className="max-w-2xl animate-premium-in">
+          <h1 className="text-5xl font-light text-white mb-6 leading-[1.1]">
+            Analysoi sopivuutesi <br/>
+            <span className="text-zinc-500 italic font-serif">sekunneissa.</span>
+          </h1>
+          <p className="text-zinc-400 text-lg leading-relaxed font-light">
+            Työkalu, joka poistaa arvailun työhaussa. Syötä tiedot ja anna algoritmin hienosäätää viestisi.
+          </p>
         </section>
+
+        {/* Lomake ja Sivupalkki */}
+        <div className="grid lg:grid-cols-[1fr,350px] gap-16">
+          <section>
+            <form onSubmit={handleSubmit} className="space-y-12">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] block">Ansioluettelo</label>
+                  <textarea
+                    className="w-full h-80 bg-brand-card/50 border border-brand-border p-6 text-sm focus:border-zinc-500 transition-colors outline-none resize-none font-light leading-relaxed"
+                    placeholder="Liitä CV..."
+                    value={cvText}
+                    onChange={(e) => setCvText(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em] block">Työpaikkailmoitus</label>
+                  <textarea
+                    className="w-full h-80 bg-brand-card/50 border border-brand-border p-6 text-sm focus:border-zinc-500 transition-colors outline-none resize-none font-light leading-relaxed"
+                    placeholder="Liitä ilmoitus..."
+                    value={jobAdText}
+                    onChange={(e) => setJobAdText(e.target.value)}
+                  />
+                </div>
+              </div>
+              <button
+                disabled={loading}
+                className="w-full py-4 bg-white text-black font-medium hover:bg-zinc-200 transition-all disabled:opacity-30 uppercase text-xs tracking-[0.2em]"
+              >
+                {loading ? "Käsitellään..." : "Aloita analyysi"}
+              </button>
+            </form>
+          </section>
+
+          {/* Match Score - Sivupalkki */}
+          <aside className="border-l border-brand-border pl-16 hidden lg:block">
+            <div className="sticky top-32 space-y-12">
+              <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Match Score</h3>
+              {result ? (
+                <div className="space-y-4 animate-premium-in">
+                  <div className="text-7xl font-thin text-white tracking-tighter">
+                    {result.matchScore}<span className="text-zinc-700 text-3xl">%</span>
+                  </div>
+                  <div className="h-[1px] w-full bg-zinc-800">
+                    <div className="h-[1px] bg-white transition-all duration-1000" style={{ width: `${result.matchScore}%` }} />
+                  </div>
+                </div>
+              ) : (
+                <div className="text-zinc-600 italic text-sm">Odottaa tietoja...</div>
+              )}
+            </div>
+          </aside>
+        </div>
+
+        {/* Tulokset - ilmestyvät vain kun data on ladattu */}
+        {result && (
+          <section className="animate-premium-in border-t border-brand-border pt-24">
+            <div className="grid md:grid-cols-2 gap-16">
+              <div className="space-y-6">
+                <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Strategiset huomiot</h3>
+                <div className="text-zinc-300 font-light leading-relaxed text-base whitespace-pre-line">
+                  {result.analysis}
+                </div>
+              </div>
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-[10px] font-bold text-zinc-500 uppercase tracking-[0.2em]">Hakemuskirje</h3>
+                  <button 
+                    onClick={handleCopy}
+                    className="text-[10px] uppercase tracking-widest text-zinc-400 hover:text-white transition-colors"
+                  >
+                    {copied ? "Kopioitu" : "Kopioi"}
+                  </button>
+                </div>
+                <div className="p-10 bg-brand-card border border-brand-border text-zinc-300 font-serif italic leading-loose text-lg shadow-2xl">
+                  {result.coverLetter}
+                </div>
+              </div>
+            </div>
+          </section>
+        )}
       </div>
     </main>
   );

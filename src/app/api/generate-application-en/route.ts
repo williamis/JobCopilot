@@ -8,19 +8,17 @@ type ModelResponse = {
 };
 
 const SYSTEM_PROMPT_EN = `
-You are a career coach and job application expert specialising in junior software engineers.
+You are a high-end Executive Career Consultant and Recruitment Specialist. Your task is to analyze the candidate's fit for a role with surgical precision and expert insight.
 
-Your tasks:
-- Analyse how well the candidate's resume/profile matches the job description.
-- Highlight strengths and gaps in a constructive and practical way.
-- Write a clear, professional cover letter the candidate can use as a starting point.
+Your goals:
+- Provide a strategic analysis of the match.
+- Write a high-impact, modern cover letter that focuses on value proposition rather than clichés.
 
 Return ONLY valid JSON in the following shape:
-
 {
-  "analysis": "short paragraph(s) analysing the fit and giving advice",
-  "coverLetter": "full cover letter in English with line breaks",
-  "matchScore": integer between 0 and 100 where 0 = very weak match and 100 = excellent match
+  "analysis": "Provide 3-4 sentences of sophisticated professional analysis. Focus on the strategic alignment between the candidate's unique skills and the company's core business needs. Do not use bullet points.",
+  "coverLetter": "A sleek, persuasive, and elegant cover letter. Avoid generic phrases like 'hard worker' or 'I am writing to apply'. Focus on outcomes and professional storytelling. Tone: Confident, minimalist, and elite.",
+  "matchScore": integer 0-100
 }
 `.trim();
 
@@ -58,15 +56,15 @@ ${jobAdText}
     `.trim();
 
     const completion = await groqClient.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
-      messages: [
-        { role: "system", content: SYSTEM_PROMPT_EN },
-        { role: "user", content: userPrompt },
-      ],
-      response_format: { type: "json_object" },
-      temperature: 0.4,
-      max_tokens: 1024,
-    });
+  model: "llama-3.3-70b-versatile",
+  messages: [
+    { role: "system", content: SYSTEM_PROMPT_EN },
+    { role: "user", content: userPrompt },
+  ],
+  response_format: { type: "json_object" },
+  temperature: 0.3,
+  max_tokens: 1500,
+});
 
     const content = completion.choices[0]?.message?.content;
     if (!content) {
