@@ -3,7 +3,8 @@
 JobCopilot is a high-end, bilingual AI-powered platform designed to provide surgical-grade analysis of candidate resumes against job descriptions. The application delivers strategic insights and tailored cover letters by leveraging advanced Large Language Models.
 
 # [Main Interface]
-![alt text](image.png)
+![alt text](image-4.png) EN
+![alt text](image-5.png) FI
 
 ## OVERVIEW
 JobCopilot eliminates the ambiguity of job applications through structured data analysis. Built for the modern professional, it focuses on a minimalist, high-conversion user experience and sophisticated prompt engineering to produce professional-grade outcomes.
@@ -45,15 +46,15 @@ The interface follows a "SaaS-first" philosophy. Key design elements include:
 ## HIGH MATCH SCENARIO
 Strategic alignment analysis and generated cover letter for a high-suitability candidate.
 
+![alt text](image.png)
 ![alt text](image-1.png)
-![alt text](image-2.png)
 
 
 # CRITICAL GAP IDENTIFICATION
 Example of the system identifying missing requirements and providing constructive feedback.
 
+![alt text](image-2.png)
 ![alt text](image-3.png)
-![alt text](image-4.png)
 
 
 ## SUMMARY
